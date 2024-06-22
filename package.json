@@ -1,0 +1,12 @@
+{
+    "name": "file_system",
+    "version": "1.0.0",
+    "description": "Creating the project that displays the project directory on the browser and also allows to view and access those directly on the browser itself.",
+    "main": "backend/server.js",
+    "scripts": {
+        "start": "cd backend && npm start"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
