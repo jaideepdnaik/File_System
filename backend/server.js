@@ -21,7 +21,7 @@ app.use('/frontend', (req, res) => {
                 }
                 const fileLinks = files.map(file => {
                     const filePath = path.join(req.path, file);
-                    return `<li><a href="${filePath}">${file}</a></li>`;
+                    return `<li><a href="/frontend${filePath}">${file}</a></li>`;
                 }).join('');
                 res.send(`<ul>${fileLinks}</ul>`);
             });
@@ -33,7 +33,7 @@ app.use('/frontend', (req, res) => {
 
 // Custom middleware to serve directory listings for /backend
 app.use('/backend', (req, res) => {
-    const dirPath = path.join(__dirname, '../backend', req.path); // Note the corrected path here
+    const dirPath = path.join(__dirname, '../backend', req.path);
     fs.stat(dirPath, (err, stats) => {
         if (err) {
             return res.status(404).send('Not Found');
@@ -45,7 +45,7 @@ app.use('/backend', (req, res) => {
                 }
                 const fileLinks = files.map(file => {
                     const filePath = path.join(req.path, file);
-                    return `<li><a href="${filePath}">${file}</a></li>`;
+                    return `<li><a href="/backend${filePath}">${file}</a></li>`;
                 }).join('');
                 res.send(`<ul>${fileLinks}</ul>`);
             });
