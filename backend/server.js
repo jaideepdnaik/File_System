@@ -4,14 +4,26 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to serve static files
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Middleware to serve files and directories
+app.use((req, res, next) => {
+    let dirPath;
 
-// Custom middleware to serve directory listings for /frontend
-app.use('/frontend', (req, res) => {
-    const dirPath = path.join(__dirname, '../frontend', req.path);
+    if (req.path.startsWith('/backend')) {
+        dirPath = path.join(__dirname, '../backend', req.path.replace('/backend', ''));
+    } else if (req.path.startsWith('/frontend')) {
+        dirPath = path.join(__dirname, '../frontend', req.path.replace('/frontend', ''));
+    } else {
+        dirPath = path.join(__dirname, '../', req.path);
+    }
+
     fs.stat(dirPath, (err, stats) => {
         if (err) {
+            if (req.path === '/') {
+                // Serve the root directory listing
+                const rootDirs = ['frontend', 'backend'];
+                const fileLinks = rootDirs.map(dir => `<li><a href="/${dir}">${dir}</a></li>`).join('');
+                return res.send(`<ul>${fileLinks}</ul>`);
+            }
             return res.status(404).send('Not Found');
         }
         if (stats.isDirectory()) {
@@ -21,31 +33,7 @@ app.use('/frontend', (req, res) => {
                 }
                 const fileLinks = files.map(file => {
                     const filePath = path.join(req.path, file);
-                    return `<li><a href="/frontend${filePath}">${file}</a></li>`;
-                }).join('');
-                res.send(`<ul>${fileLinks}</ul>`);
-            });
-        } else {
-            res.sendFile(dirPath);
-        }
-    });
-});
-
-// Custom middleware to serve directory listings for /backend
-app.use('/backend', (req, res) => {
-    const dirPath = path.join(__dirname, '../backend', req.path);
-    fs.stat(dirPath, (err, stats) => {
-        if (err) {
-            return res.status(404).send('Not Found');
-        }
-        if (stats.isDirectory()) {
-            fs.readdir(dirPath, (err, files) => {
-                if (err) {
-                    return res.status(500).send('Server Error');
-                }
-                const fileLinks = files.map(file => {
-                    const filePath = path.join(req.path, file);
-                    return `<li><a href="/backend${filePath}">${file}</a></li>`;
+                    return `<li><a href="${filePath}">${file}</a></li>`;
                 }).join('');
                 res.send(`<ul>${fileLinks}</ul>`);
             });
@@ -57,9 +45,7 @@ app.use('/backend', (req, res) => {
 
 // Fallback to index.html for single-page applications (optional)
 app.get('*', (req, res) => {
-    if (!req.path.startsWith('/backend') && !req.path.startsWith('/frontend')) {
-        res.sendFile(path.join(__dirname, '../frontend/index.html'));
-    }
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 app.listen(PORT, () => {
