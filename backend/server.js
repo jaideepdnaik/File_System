@@ -67,7 +67,7 @@ app.use((req, res, next) => {
 });
 
 // Route to handle file deletion
-app.delete('*', (req, res) => {
+app.delete('/delete', (req, res) => {
     const filePath = path.join(__dirname, '../', req.body.path.replace(/^\//, ''));
     console.log(`Attempting to delete file: ${filePath}`);
 
